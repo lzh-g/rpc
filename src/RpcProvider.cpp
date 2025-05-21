@@ -13,7 +13,7 @@ RpcProvider::~RpcProvider()
 
 void RpcProvider::NotifyService(google::protobuf::Service *service)
 {
-    //  服务端需要直到客户端调用的服务对象和方法，这些信息保存在ServiceInfo中
+    //  服务端需要知道客户端调用的服务对象和方法，这些信息保存在ServiceInfo中
     ServiceInfo service_info;
 
     // GetDescriptor()返回protobuf生成的服务类描述信息

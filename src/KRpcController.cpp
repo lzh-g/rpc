@@ -31,6 +31,10 @@ void KRpcController::SetFailed(const std::string &reason)
 // 以下功能未实现，是RPC服务端提供的取消功能
 // 开始取消RPC调用（未实现）
 
+void KRpcController::StartCancel()
+{
+}
+
 // 判断RPC调用是否被取消（未实现）
 bool KRpcController::IsCanceled() const
 {

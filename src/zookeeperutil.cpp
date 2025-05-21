@@ -12,11 +12,11 @@ bool is_connected = false;  // 标记zookeeper客户端是否连接成功
 // 全局的watcher观察器，用于接收zookeeper服务器的通知
 void globel_watcher(zhandle_t *zh, int type, int status, const char *path, void *watcherCtx)
 {
-    // 回调消息类型和绘画相关的事件
+    // 回调消息类型和会话相关的事件
     if (type == ZOO_SESSION_EVENT)
     {
         // zookeeper客户端和服务器连接成功
-        if (status = ZOO_CONNECTED_STATE)
+        if (status == ZOO_CONNECTED_STATE)
         {
             std::lock_guard<std::mutex> lock(cv_mutex); // 加锁保护
             is_connected = true;                        // 标记连接成功
