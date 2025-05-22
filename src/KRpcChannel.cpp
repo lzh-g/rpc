@@ -70,13 +70,13 @@ void KRpcChannel::CallMethod(const google::protobuf::MethodDescriptor *method, g
     {
         // 序列化请求参数
         args_size = args_str.size(); // 序列化后的长度
+        std::cout << "args_size: " << args_size << std::endl;
     }
     else
     {
         controller->SetFailed("serialize request fail"); // 序列化失败，设置错误信息
         return;
     }
-
     // 定义RPC请求的头部信息
     rpc::RpcHeader rpcHeader;
     rpcHeader.set_service_name(service_name); // 设置服务吗
@@ -90,6 +90,7 @@ void KRpcChannel::CallMethod(const google::protobuf::MethodDescriptor *method, g
     {
         // 序列化头部信息
         header_size = rpc_header_str.size(); // 获取序列化后的长度
+        std::cout << "header_size: " << header_size << std::endl;
     }
     else
     {
@@ -99,11 +100,41 @@ void KRpcChannel::CallMethod(const google::protobuf::MethodDescriptor *method, g
 
     // 将头部长度和头部信息拼接成完整的RPC请求报文
     std::string send_rpc_str;
-    google::protobuf::io::StringOutputStream string_output(&send_rpc_str);
-    google::protobuf::io::CodedOutputStream coded_output(&string_output);
-    coded_output.WriteVarint32(static_cast<uint32_t>(header_size)); // 写入头部长度
-    coded_output.WriteString(rpc_header_str);                       // 写入头部信息
-    send_rpc_str += args_str;                                       // 拼接请求参数
+    {
+        google::protobuf::io::StringOutputStream string_output(&send_rpc_str);
+        google::protobuf::io::CodedOutputStream coded_output(&string_output);
+        coded_output.WriteVarint32(header_size);
+        std::cout << "header_size: " << header_size << std::endl;
+        coded_output.WriteString(rpc_header_str); // 写入头部信息
+    }
+
+    std::cout << "header_size(序列化): ";
+    for (char c : send_rpc_str)
+    {
+        printf("%02x ", static_cast<unsigned char>(c));
+    }
+    std::cout << std::endl;
+
+    std::cout << "头部: ";
+    for (char c : send_rpc_str)
+    {
+        printf("%02x ", static_cast<unsigned char>(c));
+    }
+    std::cout << std::endl;
+    send_rpc_str += args_str; // 拼接请求参数
+
+    std::cout << "args_str: ";
+    for (char c : args_str)
+    {
+        printf("%02x ", static_cast<unsigned char>(c));
+    }
+    std::cout << std::endl;
+    std::cout << "发送数据(拼接后): ";
+    for (char c : send_rpc_str)
+    {
+        printf("%02x ", static_cast<unsigned char>(c));
+    }
+    std::cout << std::endl;
 
     // 发送RPC请求到服务器
     if (-1 == send(m_clientfd, send_rpc_str.c_str(), send_rpc_str.size(), 0))
@@ -113,6 +144,10 @@ void KRpcChannel::CallMethod(const google::protobuf::MethodDescriptor *method, g
         std::cout << "send error: " << strerror_r(errno, errtxt, sizeof(errtxt)) << std::endl; // 打印错误信息
         controller->SetFailed(errtxt);                                                         // 设置错误信息
         return;
+    }
+    else
+    {
+        std::cout << "发送成功" << std::endl;
     }
 
     // 接收服务器响应

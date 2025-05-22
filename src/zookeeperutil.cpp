@@ -98,6 +98,7 @@ std::string ZkClient::GetData(const char *path)
     int bufferlen = sizeof(buf);
 
     // 获取指定节点的数据
+    std::cout << path << std::endl;
     int flag = zoo_get(m_zhandle, path, 0, buf, &bufferlen, nullptr);
     // 获取失败
     if (flag != ZOK)

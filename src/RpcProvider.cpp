@@ -44,7 +44,7 @@ void RpcProvider::NotifyService(google::protobuf::Service *service)
 void RpcProvider::Run()
 {
     // 读取配置文件中的RPC服务器IP和端口
-    std::string ip = RpcApplication::GetInstance().GetConfig().Load("rpcserviceip");
+    std::string ip = RpcApplication::GetInstance().GetConfig().Load("rpcserverip");
     int port = atoi(RpcApplication::GetInstance().GetConfig().Load("rpcserverport").c_str());
 
     // 使用muduo库创建地址对象
@@ -104,12 +104,20 @@ void RpcProvider::OnMessage(const muduo::net::TcpConnectionPtr &conn, muduo::net
     // 从网络缓冲区读取远程RPC调用请求的字符流
     std::string recv_buf = buffer->retrieveAllAsString();
 
+    std::cout << "recv_buf: ";
+    for (char c : recv_buf)
+    {
+        printf("%02x ", static_cast<unsigned char>(c));
+    }
+    std::cout << std::endl;
+
     // 使用protobuf的CodedInputStream反序列化RPC请求
     google::protobuf::io::ArrayInputStream raw_input(recv_buf.data(), recv_buf.size());
     google::protobuf::io::CodedInputStream coded_input(&raw_input);
 
-    uint32_t header_size{};
+    uint32_t header_size;
     coded_input.ReadVarint32(&header_size); // 解析header_size
+    std::cout << "header_size: " << header_size << std::endl;
 
     // 根据header_size读取数据头的原始字符流，反序列化数据，得到RPC请求的信息信息
     std::string rpc_header_str;
@@ -125,11 +133,20 @@ void RpcProvider::OnMessage(const muduo::net::TcpConnectionPtr &conn, muduo::net
     // 恢复之前的限制，一边安全地继续读取其他数据
     coded_input.PopLimit(msg_limit);
 
+    std::cout << "rpc_header_str: ";
+    for (char c : rpc_header_str)
+    {
+        printf("%02x ", static_cast<unsigned char>(c));
+    }
+    std::cout << std::endl;
+
     if (rpcHeader.ParseFromString(rpc_header_str))
     {
         service_name = rpcHeader.service_name();
         method_name = rpcHeader.method_name();
         args_size = rpcHeader.args_size();
+        std::cout << "service_name: " << service_name << std::endl;
+        std::cout << "method_name: " << method_name << std::endl;
     }
     else
     {
@@ -150,12 +167,14 @@ void RpcProvider::OnMessage(const muduo::net::TcpConnectionPtr &conn, muduo::net
     auto it = service_map.find(service_name);
     if (it == service_map.end())
     {
+        std::cout << "服务名不存在" << std::endl;
         std::cout << service_name << " is not exist!" << std::endl;
         return;
     }
     auto mit = it->second.method_map.find(method_name);
     if (mit == it->second.method_map.end())
     {
+        std::cout << "方法名不存在" << std::endl;
         std::cout << service_name << "." << method_name << " is not exist!" << std::endl;
         return;
     }
