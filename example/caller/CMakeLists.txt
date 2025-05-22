@@ -5,7 +5,7 @@ file(GLOB CLIENT_SRCS ${CMAKE_CURRENT_SOURCE_DIR}/*.cpp)
 file(GLOB PROTO_SRCS ${CMAKE_CURRENT_SOURCE_DIR}/../protobuf/*.pb.cc)
 
 # 创建客户端可执行文件
-add_executable(client ${CLIENT_SRCS} ${RROTO_SRCS})
+add_executable(client ${CLIENT_SRCS} ${PROTO_SRCS})
 
 # 连接必要的库
 target_link_libraries(client rpc_core ${LIBS})

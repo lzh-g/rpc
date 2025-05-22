@@ -59,8 +59,8 @@ int main(int argc, char *argv[])
     // 创建日志对象
     RpcLogger logger("MyRPC");
 
-    const int thread_count = 10;        // 并发线程数
-    const int requests_per_thread = 10; // 每个线程发送的请求数
+    const int thread_count = 1000;     // 并发线程数
+    const int requests_per_thread = 2; // 每个线程发送的请求数
 
     std::vector<std::thread> threads;  // 存储线程对象的容器
     std::atomic<int> success_count(0); // 成功请求的计数器
